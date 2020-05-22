@@ -16,16 +16,50 @@ public class SimplePriorityQueue {
     }
 
     // Heapify
-    public SimplePriorityQueue(Integer[] elements) {}
+    public SimplePriorityQueue(Integer[] elements) {
+        if (elements == null) {
+            return;
+        }
+        size = elements.length;
+        array = elements;
+        // First non-leaf node index
+        int index = getParent(size - 1);
+        while (index >= 0) {
+            shiftDown(index);
+            index--;
+        }
+    }
 
-    public void offer(Integer e) {}
+    public void offer(Integer e) {
+        if (isFull()) {
+            resize(array.length * 2);
+        }
+        array[size] = e;
+        shiftUp(size);
+        size++;
+    }
+
+    private void resize(int newCapacity) {
+        Integer[] newArray = new Integer[newCapacity];
+        for (int i = 0; i < array.length; i++) {
+            newArray[i] = array[i];
+        }
+        array = newArray;
+    }
 
     public Integer poll() {
-        return 0;
+        doEmptyCheck();
+        int root = array[0];
+        swap(0, size - 1);
+        array[size - 1] = null;
+        size--;
+        shiftDown(0);
+        return root;
     }
 
     public Integer peek() {
-        return 0;
+        doEmptyCheck();
+        return array[0];
     }
 
     public int size() {
@@ -39,9 +73,35 @@ public class SimplePriorityQueue {
 
     private void shiftUp(int cur) {
         while (cur > 0) {
+            if (array[cur] < array[getParent(cur)]) {
+                swap(cur, getParent(cur));
+                cur = getParent(cur);
+            } else {
+                break;
+            }
         }
     }
-    private void shiftDown(int cur) {}
+    private void shiftDown(int cur) {
+        while (cur < size) {
+            int left = getLeftChild(cur);
+            int right = getRightChild(cur);
+            if (left < size && right < size) {
+                int minIndex = (array[left] < array[right]) ? left : right;
+                if (array[cur] > array[minIndex]) {
+                    swap(cur, minIndex);
+                    cur = minIndex;
+                } else {
+                    break;
+                }
+            } else if (left < size && right > size && array[cur] > array[left]){
+                swap(cur, left);
+                cur = left;
+            } else {
+                break;
+            }
+
+        }
+    }
 
     private int getParent(int index) {
         return (index - 1) / 2;
